@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/dev.kubabin.launcher.desktop.in
+data/dev.kubabin.launcher.metainfo.xml.in
+data/dev.kubabin.launcher.gschema.xml
+src/main.py
+src/window.py
+src/window.ui

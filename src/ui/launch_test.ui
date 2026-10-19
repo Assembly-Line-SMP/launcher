@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <template class="LaunchTestPage" parent="AssemblylinelauncherPage">
+    <property name="child">
+      <object class="AdwToolbarView">
+        <property name="content">
+          <object class="AdwViewStack" id="view_stack">
+            <child>
+              <object class="AdwViewStackPage">
+                <property name="name">main_screen</property>
+                <property name="child">
+                  <object class="AdwStatusPage" id="status_page">
+                    <property name="child">
+                      <!--Vertical box container-->
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <child>
+                              <object class="AdwComboRow" id="account_combo">
+                                <property name="title" translatable="yes">Account</property>
+                                <property name="model">
+                                  <object class="GtkStringList" id="account_list">
+                                    <items>
+                                      <item>Account 1</item>
+                                      <item>Account 2</item>
+                                    </items>
+                                  </object>
+                                </property>
+                                <child>
+                                  <object class="GtkButton">
+                                    <property name="label" translatable="yes">Manage Accounts</property>
+                                    <property name="valign">center</property>
+                                    <signal name="clicked" handler="on_manage_accounts" />
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwComboRow" id="version_combo">
+                                <property name="title" translatable="yes">Version</property>
+                                <property name="model">
+                                  <object class="GtkStringList" id="version_list">
+                                    <items>
+                                      <item>Version 1</item>
+                                      <item>Version 2</item>
+                                    </items>
+                                  </object>
+                                </property>
+                                <child>
+                                  <object class="GtkButton">
+                                    <property name="label" translatable="yes">Settings</property>
+                                    <property name="valign">center</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwButtonRow" id="play_button">
+                                <property name="title" translatable="yes">Play</property>
+                                <style>
+                                  <class name="suggested-action"/>
+                                </style>
+                                <signal name="activated" handler="on_play_clicked" />
+                              </object>
+                            </child>
+                            <child>
+                              <!--Progress bar, hidden by default-->
+                              <object class="GtkProgressBar" id="progress_bar">
+                                <property name="fraction">0</property>
+                                <property name="visible">False</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="status_label">
+                                <property name="label" translatable="yes">Launch Status: </property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkScrolledWindow" id="text_scroller">
+                                <property name="width-request">500</property>
+                                <property name="height-request">250</property>
+                                <property name="hscrollbar-policy">automatic</property>
+                                <property name="vscrollbar-policy">automatic</property>
+                                
+                                <child>
+                                  <!--Log-->
+                                  <object class="GtkTextView" id="launch_log">
+                                    <property name="wrap-mode">word-char</property>
+                                    <property name="editable">false</property>
+                                    <property name="monospace">true</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage">
+                <property name="name" translatable="yes">account_page</property>
+                <property name="child">
+                  <object class="AdwStatusPage">
+                    <property name="child">
+                      <!--Vertical box container-->
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <child>
+                              <object class="AdwComboRow">
+                                <property name="title" translatable="yes">Account</property>
+                                <property name="model">
+                                  <object class="GtkStringList">
+                                    <items>
+                                      <item>Account 1</item>
+                                      <item>Account 2</item>
+                                    </items>
+                                  </object>
+                                </property>
+                                <child>
+                                  <object class="GtkButton">
+                                    <property name="label" translatable="yes">Manage Accounts</property>
+                                    <property name="valign">center</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

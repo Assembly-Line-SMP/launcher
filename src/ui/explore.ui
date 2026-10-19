@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <template class="AssemblylinelauncherExplorePage" parent="AssemblylinelauncherPage">
+    <property name="child">
+      <object class="AdwStatusPage">
+        <property name="title" translatable="yes">Explore</property>
+      </object>
+    </property>
+  </template>
+</interface>

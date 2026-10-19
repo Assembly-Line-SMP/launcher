@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"C_Cpp.default.compileCommands": "/mnt/hdd/kuba/projects/Builder/AssemblyLineLauncher/builddir/compile_commands.json",
+		"C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild"
+	}
+}

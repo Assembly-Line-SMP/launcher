@@ -1,0 +1,9 @@
+.venv/
+build/
+build-native/
+builddir
+.flatpak-builder/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

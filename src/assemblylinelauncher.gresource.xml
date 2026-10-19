@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/dev/kubabin/launcher">
+    <file preprocess="xml-stripblanks">window.ui</file>
+    <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
+    <file preprocess="xml-stripblanks">ui/home.ui</file>
+    <file preprocess="xml-stripblanks">ui/assembly_line.ui</file>
+    <file preprocess="xml-stripblanks">ui/explore.ui</file>
+    <file preprocess="xml-stripblanks">ui/fix.ui</file>
+    <file preprocess="xml-stripblanks">ui/launch_test.ui</file>
+  </gresource>
+</gresources>
