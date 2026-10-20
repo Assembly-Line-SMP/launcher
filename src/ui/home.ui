@@ -4,8 +4,18 @@
   <requires lib="libadwaita" version="1.0"/>
   <template class="AssemblylinelauncherHomePage" parent="AssemblylinelauncherPage">
     <property name="child">
-      <object class="AdwStatusPage">
-        <property name="title" translatable="yes">Home</property>
+      <object class="GtkFlowBox" id="instances_box">
+        <property name="selection-mode">none</property>
+        <property name="homogeneous">True</property>
+        <property name="halign">start</property>
+        <property name="valign">start</property>
+        <property name="column-spacing">10</property>
+        <property name="row-spacing">10</property>
+        <property name="min-children-per-line">3</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
       </object>
     </property>
   </template>

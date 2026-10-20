@@ -22,8 +22,13 @@
 #
 # SPDX-License-Identifier: MIT
 
+from ast import Gt
+from gi.repository import Gio
+
 from gi.repository import Adw
 from gi.repository import Gtk
+
+from .launcher.auth.manager import AccountManager
 
 from .pages import PAGES
 
@@ -36,6 +41,7 @@ class AssemblylinelauncherWindow(Adw.ApplicationWindow):
     sidebar_section = Gtk.Template.Child()
     content_page = Gtk.Template.Child()
     stack = Gtk.Template.Child()
+    account_menu = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -48,6 +54,15 @@ class AssemblylinelauncherWindow(Adw.ApplicationWindow):
                 Adw.SidebarItem(title=page.title, icon_name=page.icon_name))
         self.sidebar.set_selected(0)
         self.show_page(0)
+
+        # Populate account menu
+        for account in AccountManager().list_accounts():
+            self.account_menu.append(account.username)
+        buttons_section = Gio.Menu()
+        add_account_item = Gio.MenuItem.new("Add account")
+        add_account_item.set_icon(Gio.ThemedIcon(name="list-add"))
+        buttons_section.append_item(add_account_item)
+        self.account_menu.append_section(None, buttons_section)
 
     def show_page(self, index):
         page = self.pages[index]

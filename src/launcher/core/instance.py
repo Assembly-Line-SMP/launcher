@@ -12,6 +12,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gi.repository import GObject
+
 from ..util.paths import instances_dir
 
 logger = logging.getLogger(__name__)
@@ -30,6 +32,7 @@ class InstanceMetadata:
     loader_version: str
     java_major: int
     created_at: float = field(default_factory=lambda: __import__("time").time())
+    icon: str | None = None
     last_played_at: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,8 +43,9 @@ class InstanceMetadata:
         return InstanceMetadata(**data)
 
 
-class Instance:
+class Instance(GObject.Object):
     def __init__(self, path: Path, metadata: InstanceMetadata) -> None:
+        super().__init__()
         self.path = path
         self.metadata = metadata
 

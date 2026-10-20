@@ -162,7 +162,7 @@ def _run_installer(
     if generated_profiles:
         return sorted(generated_profiles)[-1]
 
-    from launcher.util.paths import cache_dir
+    from ..util.paths import cache_dir
 
     installer_path = cache_dir() / "installers" / installer_filename
     download_file(

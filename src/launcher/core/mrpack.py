@@ -112,7 +112,7 @@ def download_mrpack(version: ModrinthVersion, *, progress: ProgressCallback | No
         sha512=file.sha512 or None,
         expected_size=file.size,
     )
-    from launcher.core.downloader import download_file
+    from .downloader import download_file
 
     return download_file(task, progress=progress)
 

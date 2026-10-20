@@ -6,6 +6,8 @@
   <requires lib="gtk" version="4.0"/>
   <requires lib="gio" version="2.0"/>
   <requires lib="libadwaita" version="1.0"/>
+  <menu id="account_menu">
+  </menu>
   <template class="AssemblylinelauncherWindow" parent="AdwApplicationWindow">
     <property name="title" translatable="yes">AssemblyLineLauncher</property>
     <property name="default-width">800</property>
@@ -43,6 +45,16 @@
                 <child type="top">
                   <object class="AdwHeaderBar">
                     <property name="show-title">True</property>
+                    <child type="end">
+                      <object class="GtkMenuButton" id="header_button">
+                        <property name="menu-model">account_menu</property>
+                        <child>
+                          <object class="GtkImage" id="header_button_icon">
+                            <property name="file">data/icons/test.png</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <property name="content">

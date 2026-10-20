@@ -69,6 +69,7 @@ def sync_instance(
         )
 
     instance_path = instance_manager.get_or_create_path(DEFAULT_INSTANCE_ID)
+    icon = existing.metadata.icon if existing else ModrinthClient(version.project_id).get_project().icon_url
     placeholder_metadata = InstanceMetadata(
         id=DEFAULT_INSTANCE_ID,
         name="Assembly Line SMP",
@@ -77,6 +78,7 @@ def sync_instance(
         minecraft_version="",
         loader_id="",
         loader_version="",
+        icon=icon,
         java_major=21,
     )
     instance = Instance(instance_path, existing.metadata if existing else placeholder_metadata)
@@ -114,6 +116,7 @@ def sync_instance(
         loader_version=manifest.dependencies.loader_version,
         java_major=java_major,
         created_at=instance.metadata.created_at,
+        icon=icon,
         last_played_at=instance.metadata.last_played_at,
     )
     instance.save()

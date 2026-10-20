@@ -133,7 +133,6 @@ class LaunchTestPage(Page):
         print(f"Selected version: {version.version_number}")
 
         existing = sync_module.InstanceManager().get(sync_module.DEFAULT_INSTANCE_ID)
-        print(f"Existing instance: {existing.metadata.modrinth_version_id}, version.id: {version.id}")
         if existing and existing.metadata.modrinth_version_id != version.id:
             print(f"Existing version: {existing.metadata.modrinth_version_number}, Selected version: {version.version_number}")
             dialog = Adw.AlertDialog.new(
@@ -213,13 +212,9 @@ class LaunchTestPage(Page):
 
     def _fail_launch(self, message: str) -> None:
         self.progress_bar.set_visible(False)
-        self.play_button.setEnabled(True)
         self.set_status("Failed.")
         # Show a GTK/Adwaita toast
-        GLib.idle_add(
-            lambda: Adw.Toast.new(message).show(),
-            priority=GLib.PRIORITY_DEFAULT,
-        )
+        self.set_toast(message)
 
 
     def _append_log_threadsafe(self, line: str) -> None:
