@@ -1,0 +1,70 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gettext libglib2.0-dev meson ninja-build
+
+      - name: Install macOS build dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew install gettext glib meson ninja
+          echo "$(brew --prefix gettext)/bin" >> "$GITHUB_PATH"
+
+      - name: Set up MSYS2
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gettext
+            mingw-w64-ucrt-x86_64-glib2
+            mingw-w64-ucrt-x86_64-meson
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-python
+
+      - name: Build and stage
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          meson setup build --prefix=/usr
+          meson compile -C build
+          meson install -C build --destdir "$PWD/dist"
+
+      - name: Build and stage on Windows
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          meson setup build --prefix=/usr
+          meson compile -C build
+          meson install -C build --destdir "$PWD/dist"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-${{ runner.os }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
