@@ -25,19 +25,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes \
-            libegl1 \
-            libgl1 \
-            libxcb-cursor0 \
-            libxcb-icccm4 \
-            libxcb-image0 \
-            libxcb-keysyms1 \
-            libxcb-randr0 \
-            libxcb-render-util0 \
-            libxcb-shape0 \
-            libxcb-xinerama0 \
-            libxcb-xkb1 \
-            libxkbcommon-x11-0 \
-            patchelf
+            meson \
+            patchelf \
+            wget
 
       - name: Set up MSVC
         if: runner.os == 'Windows'
@@ -51,51 +41,28 @@ jobs:
       - name: Install Python build dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt nuitka
+          python -m pip install -r requirements.txt
 
-      - name: Build with Nuitka
+      - name: Build with Meson
         shell: bash
         run: |
-          python -m nuitka \
-            --standalone \
-            --assume-yes-for-downloads \
-            --enable-plugin=pyside6 \
-            --output-dir=dist \
-            --output-filename=assemblylinelauncher \
-            src/assemblylinelauncher.py
+          mkdir -p build/AppDir
+          meson setup --prefix $PWD/build/AppDir/usr build/builddir
+          meson compile -C build/builddir
+          meson install -C build/builddir
 
       - name: Build Linux AppImage
         if: runner.os == 'Linux'
-        run: |
-          mkdir -p AppDir/usr/bin
-          cp -a dist/assemblylinelauncher.dist/. AppDir/usr/bin/
-          cp data/dev.kubabin.launcher.desktop.in dist/dev.kubabin.launcher.desktop
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy.AppImage
-          chmod +x linuxdeploy.AppImage
-          ./linuxdeploy.AppImage --appimage-extract-and-run \
-            --appdir AppDir \
-            --executable dist/assemblylinelauncher.dist/assemblylinelauncher \
-            --desktop-file dist/dev.kubabin.launcher.desktop \
-            --icon-file data/icons/hicolor/scalable/apps/dev.kubabin.launcher.svg \
-            --output appimage
-          appimage_path="$(find . -maxdepth 1 -name 'AssemblyLineLauncher*.AppImage' -print -quit)"
-          test -n "$appimage_path"
-          mv "$appimage_path" dist/AssemblyLineLauncher-x86_64.AppImage
+        uses: AppImageCrafters/build-appimage-action@master
+        with:
+          args: "--appdir=build/AppDir --build-dir=build/appimage-build --skip-test"
+          recipe: AppImageBuilder.yml
 
       - name: Upload Linux AppImage
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: launcher-Linux
-          path: dist/AssemblyLineLauncher-x86_64.AppImage
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Upload standalone build
-        if: runner.os != 'Linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: launcher-${{ runner.os }}
-          path: dist/assemblylinelauncher.dist/
+          path: build/AssemblyLineLauncher*.AppImage
           if-no-files-found: error
           retention-days: 7
