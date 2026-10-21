@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 import sys
 
-from util.logging_setup import configure_logging
+from .util.logging_setup import configure_logging
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ def main() -> int:
     from PySide6.QtWidgets import QApplication
 
     from . import __app_name__, __build__, __version__
-    from ui.main_window import MainWindow
+    from .ui.main_window import MainWindow
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")

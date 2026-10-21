@@ -24,47 +24,63 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install --yes desktop-file-utils gettext libglib2.0-dev meson ninja-build
+          sudo apt-get install --yes patchelf
 
-      - name: Install macOS build dependencies
-        if: runner.os == 'macOS'
-        run: |
-          brew install gettext glib meson ninja
-          echo "$(brew --prefix gettext)/bin" >> "$GITHUB_PATH"
-
-      - name: Set up MSYS2
+      - name: Set up MSVC
         if: runner.os == 'Windows'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          update: true
-          install: >-
-            mingw-w64-ucrt-x86_64-gettext
-            mingw-w64-ucrt-x86_64-glib2
-            mingw-w64-ucrt-x86_64-meson
-            mingw-w64-ucrt-x86_64-ninja
-            mingw-w64-ucrt-x86_64-python
+        uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Build and stage
-        if: runner.os != 'Windows'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt nuitka
+
+      - name: Build with Nuitka
         shell: bash
         run: |
-          meson setup build --prefix=/usr
-          meson compile -C build
-          meson install -C build --destdir "$PWD/dist"
+          python -m nuitka \
+            --standalone \
+            --enable-plugin=pyside6 \
+            --output-dir=dist \
+            --output-filename=assemblylinelauncher \
+            src/assemblylinelauncher.py
 
-      - name: Build and stage on Windows
-        if: runner.os == 'Windows'
-        shell: msys2 {0}
+      - name: Build Linux AppImage
+        if: runner.os == 'Linux'
         run: |
-          meson setup build --prefix=/usr
-          meson compile -C build
-          meson install -C build --destdir "$PWD/dist"
+          mkdir -p AppDir/usr/bin
+          cp -a dist/assemblylinelauncher.dist/. AppDir/usr/bin/
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy.AppImage
+          chmod +x linuxdeploy.AppImage
+          ./linuxdeploy.AppImage --appimage-extract-and-run \
+            --appdir AppDir \
+            --executable dist/assemblylinelauncher.dist/assemblylinelauncher \
+            --desktop-file data/dev.kubabin.launcher.desktop.in \
+            --icon-file data/icons/hicolor/scalable/apps/dev.kubabin.launcher.svg \
+            --output appimage
+          appimage_path="$(find . -maxdepth 1 -name 'AssemblyLineLauncher*.AppImage' -print -quit)"
+          test -n "$appimage_path"
+          mv "$appimage_path" dist/AssemblyLineLauncher-x86_64.AppImage
 
-      - name: Upload build artifact
+      - name: Upload Linux AppImage
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-Linux
+          path: dist/AssemblyLineLauncher-x86_64.AppImage
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload standalone build
+        if: runner.os != 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: launcher-${{ runner.os }}
-          path: dist/
+          path: dist/assemblylinelauncher.dist/
           if-no-files-found: error
           retention-days: 7
