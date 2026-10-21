@@ -69,12 +69,13 @@ jobs:
         run: |
           mkdir -p AppDir/usr/bin
           cp -a dist/assemblylinelauncher.dist/. AppDir/usr/bin/
+          cp data/dev.kubabin.launcher.desktop.in dist/dev.kubabin.launcher.desktop
           wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy.AppImage
           chmod +x linuxdeploy.AppImage
           ./linuxdeploy.AppImage --appimage-extract-and-run \
             --appdir AppDir \
             --executable dist/assemblylinelauncher.dist/assemblylinelauncher \
-            --desktop-file data/dev.kubabin.launcher.desktop.in \
+            --desktop-file dist/dev.kubabin.launcher.desktop \
             --icon-file data/icons/hicolor/scalable/apps/dev.kubabin.launcher.svg \
             --output appimage
           appimage_path="$(find . -maxdepth 1 -name 'AssemblyLineLauncher*.AppImage' -print -quit)"
