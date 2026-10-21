@@ -24,7 +24,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install --yes gettext libglib2.0-dev meson ninja-build
+          sudo apt-get install --yes desktop-file-utils gettext libglib2.0-dev meson ninja-build
 
       - name: Install macOS build dependencies
         if: runner.os == 'macOS'
