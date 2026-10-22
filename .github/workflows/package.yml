@@ -62,7 +62,7 @@ jobs:
             gcc:p
             gdk-pixbuf2:p
             gettext-tools:p
-            glib2-devel:p
+            glib2:p
             gobject-introspection:p
             gtk4:p
             hicolor-icon-theme:p
@@ -120,10 +120,11 @@ jobs:
           python -m nuitka \
             --mode=standalone \
             --include-package=assemblylinelauncher \
-            --include-package=gi \
             --include-module=gi.repository.Gtk \
             --include-module=gi.repository.Adw \
             --include-module=gi.repository.Gio \
+            --include-module=gi.repository.GLib \
+            --include-module=gi.repository.GObject \
             --include-data-file=assemblylinelauncher.gresource=assemblylinelauncher.gresource \
             --output-dir=../nuitka-dist \
             main.py
@@ -146,13 +147,15 @@ jobs:
             builddir/src/assemblylinelauncher.gresource
           cd build/nuitka-package
           python -m nuitka \
+            --experimental=force-mingw64 \
             --mingw64 \
             --mode=standalone \
             --include-package=assemblylinelauncher \
-            --include-package=gi \
             --include-module=gi.repository.Gtk \
             --include-module=gi.repository.Adw \
             --include-module=gi.repository.Gio \
+            --include-module=gi.repository.GLib \
+            --include-module=gi.repository.GObject \
             --include-data-file=assemblylinelauncher.gresource=assemblylinelauncher.gresource \
             --output-dir=../nuitka-dist \
             main.py
