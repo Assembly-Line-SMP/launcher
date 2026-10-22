@@ -62,7 +62,7 @@ jobs:
             gcc:p
             gdk-pixbuf2:p
             gettext-tools:p
-            glib2-devel:p
+            glib2:p
             gobject-introspection:p
             gtk4:p
             hicolor-icon-theme:p
