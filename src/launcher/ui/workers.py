@@ -60,7 +60,7 @@ class Worker(Thread):
         worker.start()
 
     Caller must keep a reference to ``worker`` alive until it finishes
-    (e.g. as a field on the widget that started it) -- PySide6 will
+    (e.g. as a field on the widget that started it) -- will
     silently drop signals from a QThread that's been garbage collected
     mid-run.
     """

@@ -1,0 +1,30 @@
+version: 1
+AppDir:
+  path: ./build/AppDir
+  app_info:
+    id: dev.kubabin.launcher
+    name: AssemblyLineLauncher
+    version: latest
+    exec: /usr/bin/python3
+    exec_args: /usr/bin/assemblylinelauncher
+  runtime:
+    arch: [x86_64]
+  apt:
+    arch: [amd64]
+    include:
+      - python3
+      - python3-gi
+      - python3-httpx
+      - gir1.2-gtk-4.0
+      - gir1.2-adw-1
+    exclude: []
+  files:
+    include: []
+    exclude:
+      - usr/share/man
+      - usr/share/doc/*/README.*
+      - usr/share/doc/*/changelog.*
+      - usr/share/doc/*/NEWS.*
+      - usr/share/doc/*/TODO.*
+AppImage:
+  arch: x86_64

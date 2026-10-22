@@ -1,0 +1,200 @@
+name: Package
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            appstream \
+            desktop-file-utils \
+            gettext \
+            gir1.2-adw-1 \
+            gir1.2-gtk-4.0 \
+            libadwaita-1-dev \
+            libglib2.0-dev \
+            libgtk-4-dev \
+            meson \
+            ninja-build \
+            patchelf \
+            pkg-config \
+            python3-gi \
+            python3-gi-cairo \
+            python3-venv
+
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew install adwaita-icon-theme gettext gtk4 libadwaita meson ninja pygobject3 python
+          echo "$(brew --prefix gettext)/bin" >> "$GITHUB_PATH"
+          echo "$(brew --prefix python)/bin" >> "$GITHUB_PATH"
+
+      - name: Set up MSYS2
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          pacboy: >-
+            adwaita-icon-theme:p
+            desktop-file-utils:p
+            gcc:p
+            gdk-pixbuf2:p
+            gettext-tools:p
+            glib2-devel:p
+            gobject-introspection:p
+            gtk4:p
+            hicolor-icon-theme:p
+            libadwaita:p
+            meson:p
+            ninja:p
+            ntldd:p
+            pkgconf:p
+            python:p
+            python-gobject:p
+            python-pip:p
+
+      - name: Set up Python and build
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          python3 -m venv --system-site-packages .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt nuitka
+          meson setup builddir --prefix=/usr
+          meson compile -C builddir
+
+      - name: Set up Python and build (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt nuitka
+          meson setup builddir --prefix=/ucrt64
+          meson compile -C builddir
+
+      - name: Build AppImage
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          source .venv/bin/activate
+          mkdir -p build/AppDir
+          DESTDIR="$PWD/build/AppDir" meson install -C builddir
+          python -m pip install appimage-builder
+          appimage-builder --recipe packaging/AppImageBuilder.yml --skip-test
+          mkdir -p dist
+          mv AssemblyLineLauncher*.AppImage dist/AssemblyLineLauncher-linux-x86_64.AppImage
+
+      - name: Build Nuitka standalone bundle (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          source .venv/bin/activate
+          version="$(meson introspect --projectinfo builddir | python -c 'import json, sys; print(json.load(sys.stdin)["version"])')"
+          python packaging/prepare_nuitka.py \
+            src build/nuitka-package "$version" \
+            builddir/src/assemblylinelauncher.gresource
+          cd build/nuitka-package
+          python -m nuitka \
+            --mode=standalone \
+            --include-package=assemblylinelauncher \
+            --include-package=gi \
+            --include-module=gi.repository.Gtk \
+            --include-module=gi.repository.Adw \
+            --include-module=gi.repository.Gio \
+            --include-data-file=assemblylinelauncher.gresource=assemblylinelauncher.gresource \
+            --output-dir=../nuitka-dist \
+            main.py
+          cd ../..
+          python packaging/bundle_runtime.py macos \
+            --dist build/nuitka-dist/main.dist \
+            --output dist/AssemblyLineLauncher \
+            --prefix "$(brew --prefix)" \
+            --stage build/nuitka-package \
+            --binary main.bin \
+            --readme packaging/PORTABLE-RUNTIME.txt
+
+      - name: Build Nuitka standalone bundle (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          version="$(meson introspect --projectinfo builddir | python -c 'import json, sys; print(json.load(sys.stdin)["version"])')"
+          python packaging/prepare_nuitka.py \
+            src build/nuitka-package "$version" \
+            builddir/src/assemblylinelauncher.gresource
+          cd build/nuitka-package
+          python -m nuitka \
+            --mingw64 \
+            --mode=standalone \
+            --include-package=assemblylinelauncher \
+            --include-package=gi \
+            --include-module=gi.repository.Gtk \
+            --include-module=gi.repository.Adw \
+            --include-module=gi.repository.Gio \
+            --include-data-file=assemblylinelauncher.gresource=assemblylinelauncher.gresource \
+            --output-dir=../nuitka-dist \
+            main.py
+          cd ../..
+          python packaging/bundle_runtime.py windows \
+            --dist build/nuitka-dist/main.dist \
+            --output dist/AssemblyLineLauncher \
+            --prefix /ucrt64 \
+            --stage build/nuitka-package \
+            --binary main.exe \
+            --readme packaging/PORTABLE-RUNTIME.txt \
+            --strict
+
+      - name: Archive macOS bundle
+        if: runner.os == 'macOS'
+        run: ditto -c -k --sequesterRsrc --keepParent dist/AssemblyLineLauncher dist/AssemblyLineLauncher-macos-arm64.zip
+
+      - name: Archive Windows bundle
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path dist/AssemblyLineLauncher -DestinationPath dist/AssemblyLineLauncher-windows-x86_64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AssemblyLineLauncher-${{ runner.os }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: AssemblyLineLauncher-*
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          generate_release_notes: true

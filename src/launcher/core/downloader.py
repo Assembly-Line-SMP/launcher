@@ -2,7 +2,7 @@
 and asset/library fetchers.
 
 Kept dependency-light and callback-based (rather than tied to Qt signals)
-so it's usable from CLI code and tests without pulling in PySide6.
+so it's usable from CLI code and tests without pulling in UI libraries.
 """
 
 from __future__ import annotations

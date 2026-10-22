@@ -1,0 +1,8 @@
+This bundle is self-contained: it ships the GTK 4 and libadwaita runtime, the
+GObject Introspection typelibs, the GSettings schemas, the icon theme and the
+gdk-pixbuf loaders, so no GTK installation is required on the target system.
+
+Start the application with the launcher script in this folder:
+
+    Windows: AssemblyLineLauncher.bat
+    macOS:   AssemblyLineLauncher.command
